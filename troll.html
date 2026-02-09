@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highman Files</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            font-family: 'Arial', sans-serif;
+            color: #e0e0e0;
+            user-select: none;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            transition: filter 0.3s ease;
+        }
+
+        .container.blurred {
+            filter: blur(8px);
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 3rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #666666;
+            font-size: 0.95rem;
+        }
+
+        .folder-section {
+            margin-bottom: 40px;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #1a1a1a;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .folder-icon {
+            font-size: 2rem;
+        }
+
+        .folder-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .folder-count {
+            color: #666666;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .file-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .file-card:hover {
+            transform: translateY(-5px);
+            border-color: #444444;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .file-preview {
+            width: 100%;
+            height: 220px;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .file-preview img,
+        .file-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .file-card:hover .file-preview img,
+        .file-card:hover .file-preview video {
+            transform: scale(1.1);
+        }
+
+        .file-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(100, 100, 100, 0.9);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .file-id {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .play-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .file-card:hover .play-icon {
+            transform: scale(1.1);
+        }
+
+        .loading-spinner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #888888;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 90vw;
+            height: 90vh;
+            max-width: 1400px;
+            max-height: 900px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-media-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .modal-media {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            border-radius: 10px;
+            position: relative;
+            object-fit: contain;
+        }
+
+        .file-id-modal {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            z-index: 10;
+        }
+
+        /* Native Video Player */
+        .custom-video-player {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .custom-video-player video {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        #modalVideo {
+            background: #000;
+        }
+
+        .close-modal {
+            background: rgba(50,50,50,0.8);
+            border: 1px solid #666666;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: rgba(70,70,70,0.9);
+            transform: scale(1.05);
+        }
+
+        /* Protection overlay */
+        .protection-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 999999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .protection-overlay.active {
+            display: flex !important;
+        }
+
+        .warning-icon {
+            font-size: 5rem;
+        }
+
+        .warning-text {
+            font-size: 2rem;
+            color: #ff4444;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        /* Fullscreen styles */
+        .modal:fullscreen .close-modal,
+        .modal:-webkit-full-screen .close-modal,
+        .modal:-moz-full-screen .close-modal {
+            display: none;
+        }
+
+        .modal:fullscreen .file-id-modal,
+        .modal:-webkit-full-screen .file-id-modal,
+        .modal:-moz-full-screen .file-id-modal {
+            display: none;
+        }
+
+        .modal:fullscreen .modal-content,
+        .modal:-webkit-full-screen .modal-content,
+        .modal:-moz-full-screen .modal-content {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .modal:fullscreen .modal-media-container,
+        .modal:-webkit-full-screen .modal-media-container,
+        .modal:-moz-full-screen .modal-media-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal:fullscreen .modal-media,
+        .modal:-webkit-full-screen .modal-media,
+        .modal:-moz-full-screen .modal-media {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .modal:fullscreen .custom-video-player,
+        .modal:-webkit-full-screen .custom-video-player,
+        .modal:-moz-full-screen .custom-video-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal:fullscreen .custom-video-player video,
+        .modal:-webkit-full-screen .custom-video-player video,
+        .modal:-moz-full-screen .custom-video-player video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Touch swipe indicator */
+        .swipe-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            color: rgba(255,255,255,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .swipe-indicator.left {
+            left: 20px;
+        }
+
+        .swipe-indicator.right {
+            right: 20px;
+        }
+
+        .swipe-indicator.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .files-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .modal-content {
+                width: 95vw;
+                height: 85vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <h1 class="title">Highman</h1>
+            <p class="subtitle">Files Collection</p>
+        </div>
+
+        <div class="folder-section">
+            <div class="folder-header">
+                <span class="folder-icon">📁</span>
+                <span class="folder-name">Highman</span>
+                <span class="folder-count" id="folderCount">0 files</span>
+            </div>
+
+            <div class="files-grid" id="filesGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <button class="close-modal" onclick="closeModal()">×</button>
+        
+        <div class="swipe-indicator left" id="swipeLeft">←</div>
+        <div class="swipe-indicator right" id="swipeRight">→</div>
+        
+        <div class="modal-content">
+            <div class="modal-media-container">
+                <div class="loading-spinner" id="modalSpinner"></div>
+                <img id="modalImage" class="modal-media" style="display:none;">
+                <div id="customVideoPlayer" class="custom-video-player" style="display:none;">
+                    <video id="modalVideo" controls></video>
+                </div>
+                <div class="file-id-modal" id="fileIdModal"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="protection-overlay" id="protectionOverlay">
+        <div class="warning-icon">🔒</div>
+        <div class="warning-text">Închide Developer Tools pentru a continua</div>
+    </div>
+
+    <script>
+        const files = [
+            { url: 'https://i.imgur.com/4tdJ48s.png', type: 'image', id: '1' },
+            { url: 'https://i.imgur.com/bUCegLh.png', type: 'image', id: '2' },
+            { url: 'https://i.imgur.com/yAOEDHw.png', type: 'image', id: '3' },
+            { url: 'https://i.imgur.com/jBhcldt.png', type: 'image', id: '4' },
+            { url: 'https://i.imgur.com/ehGSeUg.mp4', type: 'video', id: '5' },
+            { url: 'https://i.imgur.com/O7V54Tg.mp4', type: 'video', id: '6' },
+            { url: 'https://i.imgur.com/uuSSsOb.mp4', type: 'video', id: '7' },
+            { url: 'https://i.imgur.com/6LFd1rf.mp4', type: 'video', id: '8' },
+            { url: 'https://i.imgur.com/3jMifzc.mp4', type: 'video', id: '9' },
+            { url: 'https://i.imgur.com/AcaY833.mp4', type: 'video', id: '10' },
+            { url: 'https://i.imgur.com/CQd9xPD.mp4', type: 'video', id: '11' },
+            { url: 'https://i.imgur.com/SIT512u.mp4', type: 'video', id: '12' },
+            { url: 'https://i.imgur.com/QVvYHis.mp4', type: 'video', id: '13' },
+            { url: 'https://i.imgur.com/RvgO1DP.mp4', type: 'video', id: '14' },
+            { url: 'https://i.imgur.com/pmhSAA0.mp4', type: 'video', id: '15' },
+            { url: 'https://i.imgur.com/1AUjWSY.mp4', type: 'video', id: '16' },
+            { url: 'https://i.imgur.com/SCjuQQc.mp4', type: 'video', id: '17' },
+            { url: 'https://i.imgur.com/xspOLxd.mp4', type: 'video', id: '18' },
+            { url: 'https://i.imgur.com/FQzQJbi.mp4', type: 'video', id: '19' },
+            { url: 'https://i.imgur.com/NmPvyUG.mp4', type: 'video', id: '20' },
+            { url: 'https://i.imgur.com/5cTK87Y.mp4', type: 'video', id: '21' },
+            { url: 'https://i.imgur.com/tcPq802.mp4', type: 'video', id: '22' },
+            { url: 'https://i.imgur.com/sggV1b1.png', type: 'image', id: '23' },
+            { url: 'https://i.imgur.com/2vloj8u.png', type: 'image', id: '24' },
+            { url: 'https://i.imgur.com/lveXzxZ.mp4', type: 'video', id: '25' },
+            { url: 'https://i.imgur.com/GkJXdnq.jpeg', type: 'image', id: '26' },
+
+        ];
+       
+        let currentFileIndex = 0;
+        let preloadedMedia = {};
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.getElementById('folderCount').textContent = `${files.length} files`;
+
+        function renderFiles() {
+            const grid = document.getElementById('filesGrid');
+            files.forEach((file, index) => {
+                const card = document.createElement('div');
+                card.className = 'file-card';
+                card.onclick = () => openModal(index);
+
+                const preview = document.createElement('div');
+                preview.className = 'file-preview';
+
+                const badge = document.createElement('div');
+                badge.className = 'file-type-badge';
+                badge.textContent = file.type === 'image' ? 'IMG' : 'VID';
+                preview.appendChild(badge);
+
+                if (file.type === 'image') {
+                    const img = document.createElement('img');
+                    img.loading = 'lazy';
+                    img.src = file.url;
+                    preview.appendChild(img);
+                } else {
+                    const video = document.createElement('video');
+                    video.src = file.url;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    preview.appendChild(video);
+
+                    const playIcon = document.createElement('div');
+                    playIcon.className = 'play-icon';
+                    playIcon.textContent = '▶';
+                    preview.appendChild(playIcon);
+
+                    card.addEventListener('mouseenter', () => {
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        video.pause();
+                        video.currentTime = 0;
+                    });
+                }
+
+                const fileId = document.createElement('div');
+                fileId.className = 'file-id';
+                fileId.textContent = `#${file.id}`;
+                preview.appendChild(fileId);
+
+                card.appendChild(preview);
+                grid.appendChild(card);
+            });
+        }
+
+        function preloadNextFile(index) {
+            if (index >= 0 && index < files.length && !preloadedMedia[index]) {
+                const file = files[index];
+                if (file.type === 'image') {
+                    const img = new Image();
+                    img.src = file.url;
+                    preloadedMedia[index] = img;
+                } else {
+                    const video = document.createElement('video');
+                    video.src = file.url;
+                    video.preload = 'auto';
+                    preloadedMedia[index] = video;
+                }
+            }
+        }
+
+        function showFile(index) {
+            const file = files[index];
+            const modalImage = document.getElementById('modalImage');
+            const customVideoPlayer = document.getElementById('customVideoPlayer');
+            const fileIdModal = document.getElementById('fileIdModal');
+            const spinner = document.getElementById('modalSpinner');
+            const video = document.getElementById('modalVideo');
+
+            spinner.style.display = 'block';
+            fileIdModal.textContent = `#${file.id}`;
+
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+
+            if (file.type === 'image') {
+                const img = preloadedMedia[index] || new Image();
+                img.onload = () => {
+                    modalImage.src = img.src;
+                    modalImage.style.display = 'block';
+                    customVideoPlayer.style.display = 'none';
+                    spinner.style.display = 'none';
+                };
+                if (!preloadedMedia[index]) {
+                    img.src = file.url;
+                }
+            } else {
+                video.src = file.url;
+                video.onloadeddata = () => {
+                    spinner.style.display = 'none';
+                };
+                customVideoPlayer.style.display = 'block';
+                modalImage.style.display = 'none';
+            }
+
+            preloadNextFile(index + 1);
+            preloadNextFile(index - 1);
+        }
+
+        function openModal(index) {
+            currentFileIndex = index;
+            const modal = document.getElementById('modal');
+            document.getElementById('mainContainer').classList.add('blurred');
+            document.body.classList.add('modal-open');
+            showFile(index);
+            modal.classList.add('active');
+        }
+
+        function showPrevFile() {
+            if (currentFileIndex > 0) {
+                currentFileIndex--;
+                showFile(currentFileIndex);
+                showSwipeIndicator('left');
+            }
+        }
+
+        function showNextFile() {
+            if (currentFileIndex < files.length - 1) {
+                currentFileIndex++;
+                showFile(currentFileIndex);
+                showSwipeIndicator('right');
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const video = document.getElementById('modalVideo');
+            document.getElementById('mainContainer').classList.remove('blurred');
+            document.body.classList.remove('modal-open');
+            modal.classList.remove('active');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+
+        function showSwipeIndicator(direction) {
+            const indicator = document.getElementById(direction === 'left' ? 'swipeLeft' : 'swipeRight');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 300);
+        }
+
+        const modal = document.getElementById('modal');
+        modal.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        modal.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                showNextFile();
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                showPrevFile();
+            }
+        }
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('modal');
+            if (modal.classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeModal();
+                        break;
+                    case 'ArrowLeft':
+                        showPrevFile();
+                        break;
+                    case 'ArrowRight':
+                        showNextFile();
+                        break;
+                }
+            }
+        });
+
+        renderFiles();
+
+        // Anti-debugging protection
+        let devtoolsOpen = false;
+        const threshold = 160;
+
+        const checkDevTools = () => {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    document.getElementById('protectionOverlay').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    document.getElementById('mainContainer').style.visibility = 'hidden';
+                }
+            } else {
+                if (devtoolsOpen) {
+                    devtoolsOpen = false;
+                    document.getElementById('protectionOverlay').classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                    document.getElementById('mainContainer').style.visibility = 'visible';
+                }
+            }
+        };
+
+        setInterval(checkDevTools, 500);
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                document.getElementById('protectionOverlay').classList.add('active');
+                return false;
+            }
+        });
+
+        setInterval(() => {
+            const start = performance.now();
+            debugger;
+            const end = performance.now();
+            if (end - start > 100) {
+                document.getElementById('protectionOverlay').classList.add('active');
+            }
+        }, 1000);
+
+        const consoleCheck = () => {
+            const element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    devtoolsOpen = true;
+                    document.getElementById('protectionOverlay').classList.add('active');
+                }
+            });
+            console.log(element);
+        };
+        consoleCheck();
+    </script>
+</body>
+</html>
