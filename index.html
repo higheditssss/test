@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>HIGHMAN FILES</title>
     <style>
         * {
             margin: 0;
@@ -12,411 +12,74 @@
         }
 
         body {
-            background: #000000;
+            background: #0a0a0a;
             font-family: 'Arial', sans-serif;
-            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
             user-select: none;
-            padding: 40px 20px;
-            overflow-x: hidden;
+            transition: opacity 2s ease-out;
         }
 
-        body.modal-open {
-            overflow: hidden;
+        body.fade-out {
+            opacity: 0;
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            transition: filter 0.3s ease;
-        }
-
-        .container.blurred {
-            filter: blur(8px);
-        }
-
-        .header {
-            margin-bottom: 40px;
-        }
-
-        .title {
-            font-size: 3rem;
-            color: #ffffff;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .subtitle {
-            color: #666666;
-            font-size: 0.95rem;
-        }
-
-        .folder-section {
-            margin-bottom: 40px;
-        }
-
-        .folder-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #1a1a1a;
-            padding: 20px 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border: 1px solid #2a2a2a;
-        }
-
-        .folder-icon {
-            font-size: 2rem;
-        }
-
-        .folder-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .folder-count {
-            color: #666666;
-            font-size: 0.9rem;
-            margin-left: auto;
-        }
-
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .file-card {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            text-align: center;
+            padding: 40px;
             position: relative;
-        }
-
-        .file-card:hover {
-            transform: translateY(-5px);
-            border-color: #444444;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        .file-preview {
-            width: 100%;
-            height: 220px;
-            background: #0a0a0a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .file-preview img,
-        .file-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .file-card:hover .file-preview img,
-        .file-card:hover .file-preview video {
-            transform: scale(1.1);
-        }
-
-        .file-type-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(100, 100, 100, 0.9);
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .file-id {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-        }
-
-        .play-icon {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        .file-card:hover .play-icon {
-            transform: scale(1.1);
-        }
-
-        .loading-spinner {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #888888;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.98);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            width: 90vw;
-            height: 90vh;
-            max-width: 1400px;
-            max-height: 900px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-media-container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .modal-media {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            border-radius: 10px;
-            position: relative;
-            object-fit: contain;
-        }
-
-        .file-id-modal {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.9);
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
             z-index: 10;
         }
 
-        /* Native Video Player */
-        .custom-video-player {
-            position: relative;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-            display: none;
+        h1 {
+            color: #e0e0e0;
+            font-size: 4.5rem;
+            letter-spacing: 15px;
+            margin-bottom: 60px;
+            font-weight: bold;
         }
 
-        .custom-video-player video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .video-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .custom-video-player:hover .video-controls {
-            opacity: 1;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 5px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 5px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .progress-filled {
-            height: 100%;
-            background: #fff;
-            border-radius: 5px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        .control-buttons {
+        .timer {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
-        .control-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px 10px;
-            transition: transform 0.2s ease;
+        .time-box {
+            background: #151515;
+            border: 1px solid #252525;
+            border-radius: 10px;
+            padding: 30px 40px;
+            min-width: 150px;
         }
 
-        .control-btn:hover {
-            transform: scale(1.1);
+        .time-value {
+            font-size: 5rem;
+            color: #d0d0d0;
+            font-weight: bold;
+            display: block;
         }
 
-        .time-display {
-            color: #fff;
-            font-size: 14px;
-            margin-left: auto;
+        .time-label {
+            font-size: 0.9rem;
+            color: #606060;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 10px;
         }
 
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
-            border: none;
-            color: #fff;
-            font-size: 30px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: rotate(90deg);
-        }
-
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.7);
-            border: none;
-            color: #fff;
-            font-size: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .nav-btn.prev {
-            left: 20px;
-        }
-
-        .nav-btn.next {
-            right: 20px;
-        }
-
-        .swipe-indicator {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 50px;
-            color: rgba(255,255,255,0.8);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 99;
-        }
-
-        .swipe-indicator.left {
-            left: 20px;
-        }
-
-        .swipe-indicator.right {
-            right: 20px;
-        }
-
-        .swipe-indicator.show {
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .files-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 15px;
-            }
-
-            .title {
-                font-size: 2rem;
-            }
-
-            .nav-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-            }
+        .footer-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #404040;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
         }
 
         /* Anti-bypass protection overlay */
@@ -449,383 +112,35 @@
 </head>
 <body>
     <div class="container" id="mainContainer">
-        <div class="header">
-            
-        </div>
-
-        <div class="folder-section">
-            <div class="folder-header">
-            <span class="folder-count" id="folderCount">0 files</span>
+        <h1>HIGHMAN FILES</h1>
+        <div class="timer">
+            <div class="time-box">
+                <span class="time-value" id="hours">00</span>
+                <span class="time-label">HOURS</span>
             </div>
-
-            <div class="files-grid" id="filesGrid"></div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="modal">
-        <button class="close-btn" onclick="closeModal()">×</button>
-        <button class="nav-btn prev" onclick="showPrevFile()">‹</button>
-        <button class="nav-btn next" onclick="showNextFile()">›</button>
-        
-        <div class="swipe-indicator left" id="swipeLeft">‹</div>
-        <div class="swipe-indicator right" id="swipeRight">›</div>
-
-        <div class="modal-content">
-            <div class="modal-media-container">
-                <div class="loading-spinner" id="modalSpinner"></div>
-                <img class="modal-media" id="modalImage" style="display: none;">
-                
-                <div class="custom-video-player" id="customVideoPlayer">
-                    <video id="modalVideo"></video>
-                    <div class="video-controls">
-                        <div class="progress-bar" id="progressBar">
-                            <div class="progress-filled" id="progressFilled"></div>
-                        </div>
-                        <div class="control-buttons">
-                            <button class="control-btn" id="playPauseBtn">▶</button>
-                            <button class="control-btn" id="muteBtn">🔊</button>
-                            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="file-id-modal" id="fileIdModal">#001</div>
+            <div class="time-box">
+                <span class="time-value" id="minutes">30</span>
+                <span class="time-label">MINUTES</span>
+            </div>
+            <div class="time-box">
+                <span class="time-value" id="seconds">00</span>
+                <span class="time-label">SECONDS</span>
             </div>
         </div>
     </div>
+
+    <div class="footer-text"></div>
 
     <div class="protection-overlay" id="protectionOverlay">
         <div class="warning-text">Închide Developer Tools pentru a continua</div>
     </div>
 
     <script>
-        const files = [
-            { url: 'https://i.imgur.com/oJBKaSN.png', type: 'image', id: '1' },
-            { url: 'https://i.imgur.com/D6IZJ8C.png', type: 'image', id: '2' },
-            { url: 'https://i.imgur.com/xawgSWX.mp4', type: 'video', id: '3' },
-            { url: 'https://i.imgur.com/8WlaMeE.png', type: 'image', id: '4' },
-            { url: 'https://i.imgur.com/ehGSeUg.mp4', type: 'video', id: '5' },
-            { url: 'https://i.imgur.com/O7V54Tg.mp4', type: 'video', id: '6' },
-            { url: 'https://i.imgur.com/uuSSsOb.mp4', type: 'video', id: '7' },
-            { url: 'https://i.imgur.com/6LFd1rf.mp4', type: 'video', id: '8' },
-            { url: 'https://i.imgur.com/3jMifzc.mp4', type: 'video', id: '9' },
-            { url: 'https://i.imgur.com/AcaY833.mp4', type: 'video', id: '10' },
-            { url: 'https://i.imgur.com/CQd9xPD.mp4', type: 'video', id: '11' },
-            { url: 'https://i.imgur.com/SIT512u.mp4', type: 'video', id: '12' },
-            { url: 'https://i.imgur.com/QVvYHis.mp4', type: 'video', id: '13' },
-            { url: 'https://i.imgur.com/RvgO1DP.mp4', type: 'video', id: '14' },
-            { url: 'https://i.imgur.com/pmhSAA0.mp4', type: 'video', id: '15' },
-            { url: 'https://i.imgur.com/lMEeQwe.mp4', type: 'video', id: '16' },
-            { url: 'https://i.imgur.com/SCjuQQc.mp4', type: 'video', id: '17' },
-            { url: 'https://i.imgur.com/xspOLxd.mp4', type: 'video', id: '18' },
-            { url: 'https://i.imgur.com/FQzQJbi.mp4', type: 'video', id: '19' },
-            { url: 'https://i.imgur.com/NmPvyUG.mp4', type: 'video', id: '20' },
-            { url: 'https://i.imgur.com/5cTK87Y.mp4', type: 'video', id: '21' },
-            { url: 'https://i.imgur.com/tcPq802.mp4', type: 'video', id: '22' },
-            { url: 'https://i.imgur.com/Ncd7hqY.png', type: 'image', id: '23' },
-            { url: 'https://i.imgur.com/u5rkk35.png', type: 'image', id: '24' },
-            { url: 'https://i.imgur.com/Qb64Eo0.mp4', type: 'video', id: '25' },
-            { url: 'https://i.imgur.com/YwCk6ul.png', type: 'image', id: '26' },
-            { url: 'https://i.imgur.com/5lCTN7H.mp4', type: 'video', id: '27' },
-            { url: 'https://i.imgur.com/JAiRwIV.mp4', type: 'video', id: '28' },
-            { url: 'https://i.imgur.com/cUfEo9h.mp4', type: 'video', id: '29' },
-            { url: 'https://i.imgur.com/qzYD7X8.mp4', type: 'video', id: '30' },
-            { url: 'https://i.imgur.com/m439P4l.mp4', type: 'video', id: '31' },
-            { url: 'https://i.imgur.com/Hyj9Cqs.mp4', type: 'video', id: '32' },
-            { url: 'https://i.imgur.com/w3YvSxY.mp4', type: 'video', id: '33' },
-            { url: 'https://i.imgur.com/pg5dGgi.mp4', type: 'video', id: '34' },
-            { url: 'https://i.imgur.com/Lp94u74.mp4', type: 'video', id: '35' },
-            { url: 'https://i.imgur.com/4COgPVQ.mp4', type: 'video', id: '36' },
-            { url: 'https://i.imgur.com/1IDzZkA.mp4', type: 'video', id: '37' },
-            { url: 'https://i.imgur.com/hGJC4yJ.mp4', type: 'video', id: '38' },
-            { url: 'https://i.imgur.com/x5z80xA.mp4', type: 'video', id: '39' }, 
-            { url: 'https://i.imgur.com/2l1kHTQ.mp4', type: 'video', id: '40' },
-            { url: 'https://i.imgur.com/WWC0vw5.mp4', type: 'video', id: '41' },
-            { url: 'https://i.imgur.com/KUksbsS.mp4', type: 'video', id: '42' },
-            { url: 'https://i.imgur.com/xBLVqmH.mp4', type: 'video', id: '43' },
-            { url: 'https://i.imgur.com/FJYGrac.mp4', type: 'video', id: '44' },
-            { url: 'https://i.imgur.com/0EsSdZe.png', type: 'image', id: '45' },
-            { url: 'https://i.imgur.com/uYnbWou.mp4', type: 'video', id: '46' },
-            { url: 'https://i.imgur.com/IsVKWnV.mp4', type: 'video', id: '47' },
-            { url: 'https://i.imgur.com/szWtUJe.mp4', type: 'video', id: '48' },
-            { url: 'https://i.imgur.com/Nx4ZQDd.mp4', type: 'video', id: '49' },
-            { url: 'https://i.imgur.com/uYEYy8U.mp4', type: 'video', id: '50' },
-            { url: 'https://i.imgur.com/95bfELL.mp4', type: 'video', id: '51' },
-            { url: 'https://i.imgur.com/7nK5BCX.png', type: 'image', id: '52' },
-            { url: 'https://i.imgur.com/5LBOMDD.mp4', type: 'video', id: '53' },
-            { url: 'https://i.imgur.com/BCyVAzR.mp4', type: 'video', id: '54' },
-            { url: 'https://i.imgur.com/52a32Lh.mp4', type: 'video', id: '55' },
-            { url: 'https://i.imgur.com/yAOEDHw.png', type: 'image', id: '56' },
-            { url: 'https://i.imgur.com/qkYoVud.mp4', type: 'video', id: '57' },
-            { url: 'https://i.imgur.com/83sLwj8.mp4', type: 'video', id: '58' },
-            { url: 'https://i.imgur.com/j8MU66R.png', type: 'image', id: '59' },
-            { url: 'https://i.imgur.com/4n7ztYI.mp4', type: 'video', id: '60' },
-            { url: 'https://i.imgur.com/NsjLeMc.mp4', type: 'video', id: '61' },
-            { url: 'https://i.imgur.com/gxoNnzc.png', type: 'image', id: '62' },
-            { url: 'https://i.imgur.com/jBhcldt.png', type: 'image', id: '63' },
-            { url: 'https://i.imgur.com/tuyuZ3v.mp4', type: 'video', id: '64' },
-            { url: 'https://i.imgur.com/BVSENXo.png', type: 'image', id: '65' },
-            { url: 'https://i.imgur.com/KF4WZG0.mp4', type: 'video', id: '66' },
-        ];
-
-        document.getElementById('folderCount').textContent = `${files.length} files`;
-
-        let currentFileIndex = 0;
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const preloadedMedia = {};
-
-        // Video Controls
-        const video = document.getElementById('modalVideo');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const muteBtn = document.getElementById('muteBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressFilled = document.getElementById('progressFilled');
-        const timeDisplay = document.getElementById('timeDisplay');
-
-        playPauseBtn.addEventListener('click', () => {
-            if (video.paused) {
-                video.play();
-                playPauseBtn.textContent = '⏸';
-            } else {
-                video.pause();
-                playPauseBtn.textContent = '▶';
-            }
-        });
-
-        muteBtn.addEventListener('click', () => {
-            video.muted = !video.muted;
-            muteBtn.textContent = video.muted ? '🔇' : '🔊';
-        });
-
-        video.addEventListener('timeupdate', () => {
-            const progress = (video.currentTime / video.duration) * 100;
-            progressFilled.style.width = progress + '%';
-            
-            const current = formatTime(video.currentTime);
-            const duration = formatTime(video.duration);
-            timeDisplay.textContent = `${current} / ${duration}`;
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            video.currentTime = pos * video.duration;
-        });
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function renderFiles() {
-            const grid = document.getElementById('filesGrid');
-            files.forEach((file, index) => {
-                const card = document.createElement('div');
-                card.className = 'file-card';
-                card.onclick = () => openModal(index);
-
-                const preview = document.createElement('div');
-                preview.className = 'file-preview';
-
-                const badge = document.createElement('div');
-                badge.className = 'file-type-badge';
-                badge.textContent = file.type === 'image' ? 'IMG' : 'VID';
-                preview.appendChild(badge);
-
-                if (file.type === 'image') {
-                    const img = document.createElement('img');
-                    img.loading = 'lazy';
-                    img.src = file.url;
-                    preview.appendChild(img);
-                } else {
-                    const video = document.createElement('video');
-                    video.src = file.url;
-                    video.muted = true;
-                    video.preload = 'metadata';
-                    preview.appendChild(video);
-
-                    const playIcon = document.createElement('div');
-                    playIcon.className = 'play-icon';
-                    playIcon.textContent = '▶';
-                    preview.appendChild(playIcon);
-
-                    card.addEventListener('mouseenter', () => {
-                        video.currentTime = 0;
-                        video.play().catch(() => {});
-                    });
-                    card.addEventListener('mouseleave', () => {
-                        video.pause();
-                        video.currentTime = 0;
-                    });
-                }
-
-                const fileId = document.createElement('div');
-                fileId.className = 'file-id';
-                fileId.textContent = `#${file.id}`;
-                preview.appendChild(fileId);
-
-                card.appendChild(preview);
-                grid.appendChild(card);
-            });
-        }
-
-        function preloadNextFile(index) {
-            if (index >= 0 && index < files.length && !preloadedMedia[index]) {
-                const file = files[index];
-                if (file.type === 'image') {
-                    const img = new Image();
-                    img.src = file.url;
-                    preloadedMedia[index] = img;
-                } else {
-                    const video = document.createElement('video');
-                    video.src = file.url;
-                    video.preload = 'auto';
-                    preloadedMedia[index] = video;
-                }
-            }
-        }
-
-        function showFile(index) {
-            const file = files[index];
-            const modalImage = document.getElementById('modalImage');
-            const customVideoPlayer = document.getElementById('customVideoPlayer');
-            const fileIdModal = document.getElementById('fileIdModal');
-            const spinner = document.getElementById('modalSpinner');
-            const video = document.getElementById('modalVideo');
-            const playPauseBtn = document.getElementById('playPauseBtn');
-
-            spinner.style.display = 'block';
-            fileIdModal.textContent = `#${file.id}`;
-
-            // Reset video complet
-            if (video) {
-                video.pause();
-                video.currentTime = 0;
-            }
-
-            if (file.type === 'image') {
-                const img = preloadedMedia[index] || new Image();
-                img.onload = () => {
-                    modalImage.src = img.src;
-                    modalImage.style.display = 'block';
-                    customVideoPlayer.style.display = 'none';
-                    spinner.style.display = 'none';
-                };
-                if (!preloadedMedia[index]) {
-                    img.src = file.url;
-                }
-            } else {
-                video.src = file.url;
-                video.onloadeddata = () => {
-                    spinner.style.display = 'none';
-                    // AUTO-PLAY când se încarcă video-ul
-                    video.play().then(() => {
-                        playPauseBtn.textContent = '⏸';
-                    }).catch(() => {
-                        playPauseBtn.textContent = '▶';
-                    });
-                };
-                customVideoPlayer.style.display = 'block';
-                modalImage.style.display = 'none';
-            }
-
-            preloadNextFile(index + 1);
-            preloadNextFile(index - 1);
-        }
-
-        function openModal(index) {
-            currentFileIndex = index;
-            const modal = document.getElementById('modal');
-            document.getElementById('mainContainer').classList.add('blurred');
-            document.body.classList.add('modal-open');
-            showFile(index);
-            modal.classList.add('active');
-        }
-
-        function showPrevFile() {
-            if (currentFileIndex > 0) {
-                currentFileIndex--;
-                showFile(currentFileIndex);
-                showSwipeIndicator('left');
-            }
-        }
-
-        function showNextFile() {
-            if (currentFileIndex < files.length - 1) {
-                currentFileIndex++;
-                showFile(currentFileIndex);
-                showSwipeIndicator('right');
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            const video = document.getElementById('modalVideo');
-            document.getElementById('mainContainer').classList.remove('blurred');
-            document.body.classList.remove('modal-open');
-            modal.classList.remove('active');
-            if (video) {
-                video.pause();
-                video.currentTime = 0;
-            }
-        }
-
-        function showSwipeIndicator(direction) {
-            const indicator = document.getElementById(direction === 'left' ? 'swipeLeft' : 'swipeRight');
-            indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 300);
-        }
-
-        const modal = document.getElementById('modal');
-        modal.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-
-        modal.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            if (touchEndX < touchStartX - swipeThreshold) {
-                showNextFile();
-            }
-            if (touchEndX > touchStartX + swipeThreshold) {
-                showPrevFile();
-            }
-        }
-
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            const modal = document.getElementById('modal');
-            if (modal.classList.contains('active')) {
-                switch(e.key) {
-                    case 'Escape':
-                        closeModal();
-                        break;
-                    case 'ArrowLeft':
-                        showPrevFile();
-                        break;
-                    case 'ArrowRight':
-                        showNextFile();
-                        break;
-                }
-            }
-        });
-
-        renderFiles();
+        // DATĂ ȘI ORA FIXĂ CÂND EXPIRĂ TIMER-UL - ACEEAȘI PENTRU TOȚI
+        // Timer-ul expiră pe: 10 Februarie 2026, ora 18:38:00 (6:38 PM)
+        // Acest moment este IDENTIC pentru TOȚI utilizatorii, indiferent când accesează pagina
+        
+        const endTime = new Date(2026, 1, 10, 18, 38, 0).getTime(); // Luna este 0-indexed (1 = Februarie)
 
         // Anti-debugging protection
         let devtoolsOpen = false;
@@ -836,26 +151,25 @@
             const heightThreshold = window.outerHeight - window.innerHeight > threshold;
             
             if (widthThreshold || heightThreshold) {
-                if (!devtoolsOpen) {
-                    devtoolsOpen = true;
-                    document.getElementById('protectionOverlay').classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    document.getElementById('mainContainer').style.visibility = 'hidden';
-                }
+                devtoolsOpen = true;
+                document.getElementById('protectionOverlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                document.getElementById('mainContainer').style.visibility = 'hidden';
             } else {
-                if (devtoolsOpen) {
-                    devtoolsOpen = false;
-                    document.getElementById('protectionOverlay').classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                    document.getElementById('mainContainer').style.visibility = 'visible';
-                }
+                devtoolsOpen = false;
+                document.getElementById('protectionOverlay').classList.remove('active');
+                document.body.style.overflow = 'auto';
+                document.getElementById('mainContainer').style.visibility = 'visible';
             }
         };
 
+        // Detect DevTools opening
         setInterval(checkDevTools, 500);
 
+        // Prevent right-click
         document.addEventListener('contextmenu', e => e.preventDefault());
 
+        // Detect F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
         document.addEventListener('keydown', e => {
             if (e.key === 'F12' || 
                 (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
@@ -866,6 +180,7 @@
             }
         });
 
+        // Debugger trap
         setInterval(() => {
             const start = performance.now();
             debugger;
@@ -875,6 +190,7 @@
             }
         }, 1000);
 
+        // Console detection
         const consoleCheck = () => {
             const element = new Image();
             Object.defineProperty(element, 'id', {
@@ -886,6 +202,49 @@
             console.log(element);
         };
         consoleCheck();
+
+        // Timer function
+        function updateTimer() {
+            if (devtoolsOpen) {
+                return;
+            }
+
+            const now = Date.now();
+            const remaining = endTime - now;
+
+            if (remaining <= 0) {
+                // Fade out smooth înainte de redirect
+                document.body.classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = 'troll.html';
+                }, 2000); // Așteaptă 2 secunde pentru tranziție
+                clearInterval(timerInterval);
+                return;
+            }
+
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        // Update timer every second
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Detect time manipulation
+        let lastTime = Date.now();
+        setInterval(() => {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastTime;
+            if (timeDiff < 0 || timeDiff > 2000) {
+                location.reload();
+            }
+            lastTime = currentTime;
+        }, 1000);
     </script>
 </body>
 </html>
