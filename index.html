@@ -17,33 +17,7 @@
             color: #e0e0e0;
             user-select: none;
             padding: 40px 20px;
-            padding-top: 120px; /* Spațiu pentru navbar */
             overflow-x: hidden;
-        }
-
-        /* Glassmorphism Navbar */
-        .glass-navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .glass-navbar-text {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ffffff;
-            letter-spacing: 8px;
-            text-transform: uppercase;
         }
 
         body.modal-open {
@@ -443,11 +417,6 @@
                 height: 50px;
                 font-size: 24px;
             }
-
-            .glass-navbar-text {
-                font-size: 1.5rem;
-                letter-spacing: 5px;
-            }
         }
 
         /* Anti-bypass protection overlay */
@@ -479,11 +448,6 @@
     </style>
 </head>
 <body>
-    <!-- Glassmorphism Navbar -->
-    <div class="glass-navbar">
-        <div class="glass-navbar-text">HIGHMAN FILES</div>
-    </div>
-
     <div class="container" id="mainContainer">
         <div class="header">
             
@@ -600,7 +564,9 @@
             { url: 'https://i.imgur.com/NsjLeMc.mp4', type: 'video', id: '61' },
             { url: 'https://i.imgur.com/gxoNnzc.png', type: 'image', id: '62' },
             { url: 'https://i.imgur.com/jBhcldt.png', type: 'image', id: '63' },
-            { url: 'https://i.imgur.com/tuyuZ3v.mp4', type: 'video', id: '64' }
+            { url: 'https://i.imgur.com/tuyuZ3v.mp4', type: 'video', id: '64' },
+            { url: 'https://i.imgur.com/BVSENXo.png', type: 'image', id: '65' },
+            { url: 'https://i.imgur.com/KF4WZG0.mp4', type: 'video', id: '66' },
         ];
 
         document.getElementById('folderCount').textContent = `${files.length} files`;
