@@ -137,10 +137,8 @@
 
     <script>
         // DATĂ ȘI ORA FIXĂ CÂND EXPIRĂ TIMER-UL - ACEEAȘI PENTRU TOȚI
-        // Timer-ul expiră pe: 10 Februarie 2026, ora 18:38:00 (6:38 PM)
-        // Acest moment este IDENTIC pentru TOȚI utilizatorii, indiferent când accesează pagina
-        
-        const endTime = new Date(2026, 1, 10, 18, 38, 0).getTime(); // Luna este 0-indexed (1 = Februarie)
+        // Timer expiră exact la ora 17:40 (30 minute de la 17:10)
+        const endTime = new Date(2026, 1, 10, 17, 40, 0).getTime();
 
         // Anti-debugging protection
         let devtoolsOpen = false;
